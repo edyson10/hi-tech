@@ -5,34 +5,49 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_home"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="@string/menu_home" />
+            android:id="@+id/nav_venta"
+            android:icon="@drawable/ic_shopping_cart"
+            android:title="@string/menu_bodega" />
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="@string/menu_gallery" />
+            android:id="@+id/nav_reporte"
+            android:icon="@drawable/ic_monetization_on"
+            android:title="@string/menu_reporte" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="@string/menu_slideshow" />
-        <item
-            android:id="@+id/nav_tools"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="@string/menu_tools" />
+            android:id="@+id/nav_producto"
+            android:icon="@drawable/ic_local_offer"
+            android:title="@string/menu_produto" />
     </group>
 
-    <item android:title="Communicate">
-        <menu>
-            <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="@string/menu_share" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="@string/menu_send" />
-        </menu>
-    </item>
-
+    <group
+        android:id="@+id/menu_bottom"
+        android:checkableBehavior="none">
+        <item
+            android:id="@+id/nav_bodega"
+            android:icon="@drawable/ic_store"
+            android:title="@string/menu_bodega" />
+        <item
+            android:id="@+id/nav_editar"
+            android:icon="@drawable/ic_edit"
+            android:title="@string/menu_editar" />
+        <item
+            android:id="@+id/nav_eliminar"
+            android:icon="@drawable/ic_delete"
+            android:title="@string/menu_eliminar" />
+        <item
+            android:id="@+id/nav_danos"
+            android:icon="@drawable/ic_do_not_disturb"
+            android:title="@string/menu_danos" />
+    </group>
+    <group
+        android:id="@+id/menu_acerca"
+        android:checkableBehavior="none">
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/menu_settings" />
+        <item
+            android:id="@+id/nav_acerca"
+            android:icon="@drawable/ic_info"
+            android:title="@string/menu_acerca" />
+    </group>
 </menu>

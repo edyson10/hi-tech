@@ -3,6 +3,7 @@ package com.desoft.hi_tech;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.view.View;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -77,22 +78,36 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        Fragment miFragment = null;
+        boolean fragmentSeleccionado = false;
 
-        if (id == R.id.nav_home) {
+        if (id == R.id.nav_venta) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_reporte) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_producto) {
 
-        } else if (id == R.id.nav_tools) {
+        } else if (id == R.id.nav_bodega) {
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_editar) {
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_eliminar) {
+
+        } else if (id == R.id.nav_danos) {
+
+        } else if (id == R.id.nav_settings) {
+
+        } else if (id == R.id.nav_acerca) {
 
         }
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        //CODIGO AÑADIDO
+        if (fragmentSeleccionado){
+            //COLOCAR EN LAS OPCIONES SELECIONADAS LOS FRAGMENT QUE SELECCIONE EL USUARIO
+            getSupportFragmentManager().beginTransaction().replace(R.id.content_main, miFragment).commit();
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
