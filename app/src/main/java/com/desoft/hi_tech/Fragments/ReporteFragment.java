@@ -1,32 +1,39 @@
 package com.desoft.hi_tech.Fragments;
 
+import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.desoft.hi_tech.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ReporteFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link ReporteFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class ReporteFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+import java.util.Calendar;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+
+public class ReporteFragment extends Fragment {
+
+    View vista;
+    TextView fecha;
+    Calendar mCurrentDate;
+    int dia, mes, anio;
+    Button reporteDia, reporteMes, salida, utilidad;
+    String recuperado = "";
+    String tienda;
+    private ProgressDialog progressDialog;
 
     private OnFragmentInteractionListener mListener;
 
@@ -34,20 +41,10 @@ public class ReporteFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ReporteFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static ReporteFragment newInstance(String param1, String param2) {
         ReporteFragment fragment = new ReporteFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+
         fragment.setArguments(args);
         return fragment;
     }
@@ -56,8 +53,7 @@ public class ReporteFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+
         }
     }
 
@@ -65,7 +61,111 @@ public class ReporteFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_reporte, container, false);
+        vista = inflater.inflate(R.layout.fragment_reporte, container, false);
+        progressDialog = new ProgressDialog(getContext());
+        cargarPreferencias();
+
+        //CODIGO FECHA DE ENTREGA ESTIPULADA
+        fecha = (TextView) vista.findViewById(R.id.fechaReporte);
+        mCurrentDate = Calendar.getInstance();
+        dia = mCurrentDate.get(Calendar.DAY_OF_MONTH);
+        mes = mCurrentDate.get(Calendar.MONTH);
+        anio = mCurrentDate.get(Calendar.YEAR);
+        fecha.setText(anio + "-" + (mes + 1) + "-" + dia);
+        fecha.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker datePicker , int year , int monthOfYear, int dayOfMonth) {
+                        monthOfYear = monthOfYear + 1;
+                        fecha.setText(year+"-"+monthOfYear+"-"+dayOfMonth);
+                    }
+                }, anio, mes, dia);
+                datePickerDialog.show();
+            }
+        });
+
+        reporteDia.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                reporteDiario();
+            }
+        });
+
+        reporteMes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                reporteMensual();
+            }
+        });
+
+        utilidad.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                verUtilidad();
+            }
+        });
+
+        return vista;
+    }
+
+    private void reporteDiario(){
+        //CODIGO PARA VALIDAR SI EL DISPOSITIVO ESTA CONECTADO A INTERNET
+        //REPORTE LOCAL PALACIO
+        ConnectivityManager con = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = con.getActiveNetworkInfo();
+        if(networkInfo != null && networkInfo.isConnected()) {
+            reporteDia = (Button) vista.findViewById(R.id.btnReporteDia);
+            reporteDia.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Uri url_aws = Uri.parse("http://52.67.38.127/hitech/indexpordia.php?fecha=" + fecha.getText().toString());
+                    Intent intent = new Intent(Intent.ACTION_VIEW, url_aws);
+                    startActivity(intent);
+                }
+            });
+        } else{
+            Toast.makeText(getContext(), "Verifique su conexión a internet",Toast.LENGTH_SHORT).show();
+            progressDialog.dismiss();
+        }
+    }
+
+    private void reporteMensual(){
+        ConnectivityManager con = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = con.getActiveNetworkInfo();
+        if(networkInfo != null && networkInfo.isConnected()) {
+            reporteMes.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Uri url_aws = Uri.parse("http://52.67.38.127/hitech/indexpormes.php");
+                    Intent intent = new Intent(Intent.ACTION_VIEW, url_aws);
+                    startActivity(intent);
+                }
+            });
+        }else {
+            Toast.makeText(getContext(), "Verifique su conexión a internet",Toast.LENGTH_SHORT).show();
+            progressDialog.dismiss();
+        }
+    }
+
+    private void verUtilidad(){
+        /*
+        Intent intent = new Intent(getContext(), UtilidadActivity.class);
+        startActivity(intent);
+         */
+    }
+
+    private void cargarPreferencias(){
+        SharedPreferences preferences = getActivity().getSharedPreferences("Preferences", Context.MODE_PRIVATE);
+        tienda = preferences.getString("tienda","");
+    }
+
+    private void cargarTitulo(){
+        if(tienda.equalsIgnoreCase("1")) {
+            utilidad.setText("UTILIDAD ALEJANDRIA");
+            utilidad.setTextColor(Color.RED);
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -75,6 +175,7 @@ public class ReporteFragment extends Fragment {
         }
     }
 
+    /*
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -85,6 +186,7 @@ public class ReporteFragment extends Fragment {
                     + " must implement OnFragmentInteractionListener");
         }
     }
+    */
 
     @Override
     public void onDetach() {
@@ -92,16 +194,6 @@ public class ReporteFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);

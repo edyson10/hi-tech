@@ -1,32 +1,58 @@
 package com.desoft.hi_tech.Fragments;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+//import com.google.zxing.integration.android.IntentIntegrator;
+//import com.google.zxing.integration.android.IntentResult;
 
 import com.desoft.hi_tech.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link VentaFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link VentaFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class VentaFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+import org.json.JSONArray;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+
+public class VentaFragment extends Fragment {
+
+    View view;
+    private ImageButton codigoqr, buscarID;
+    private Button vender, listar;
+    //private IntentIntegrator qrscan;
+    private TextView producto;
+    private EditText precioVenta, cantidad;
+    private ProgressDialog progressDialog;
+    private Spinner spEmpleado;
+    String cedula_U;
+    private ListView listaModelos;
+    String tienda;
+
+    ArrayAdapter<String> adapter;
 
     private OnFragmentInteractionListener mListener;
 
@@ -34,21 +60,10 @@ public class VentaFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment VentaFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static VentaFragment newInstance(String param1, String param2) {
         VentaFragment fragment = new VentaFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
+
         return fragment;
     }
 
@@ -56,8 +71,6 @@ public class VentaFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
 
@@ -65,8 +78,333 @@ public class VentaFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_venta, container, false);
+        view = inflater.inflate(R.layout.fragment_venta, container, false);
+
+        progressDialog = new ProgressDialog(getContext());
+        cargarPreferencias();
+
+        codigoqr = (ImageButton) view.findViewById(R.id.btnVenQR);
+        producto = (TextView) view.findViewById(R.id.txtBuscarProductoVenQR);
+        precioVenta = (EditText) view.findViewById(R.id.txtPrecioVenQR);
+        cantidad = (EditText) view.findViewById(R.id.txtCantidadVenQR);
+        spEmpleado = (Spinner) view.findViewById(R.id.spEmpleadoVenQR);
+        buscarID = (ImageButton) view.findViewById(R.id.btnBuscaProductoVenQR);
+        vender = (Button) view.findViewById(R.id.btnVenderVenQR);
+        listar = (Button) view.findViewById(R.id.btnListarBajas);
+        listaModelos = (ListView) view.findViewById(R.id.listaProductosVentas);
+
+        //CODIGO PARA VALIDAR SI EL DISPOSITIVO ESTA CONECTADO A INTERNET
+        ConnectivityManager con = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = con.getActiveNetworkInfo();
+        if(networkInfo != null && networkInfo.isConnected()) {
+            Thread thread = new Thread() {
+                @Override
+                public void run() {
+                    final String resultado1 = recibirDatosEmpleadosGET();
+                    final String resultado = cargarDatosGET();
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            cargarSpinner(listaEmpleados(resultado1));
+                            cargarLista(listaProductos(resultado));
+                            adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, listaProductos(resultado));
+                            listaModelos.setAdapter(adapter);
+                            producto.addTextChangedListener(new TextWatcher() {
+                                @Override
+                                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                                    //adapter.getFilter().filter(s);
+                                }
+
+                                @Override
+                                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                                    adapter.getFilter().filter(s);
+                                }
+
+                                @Override
+                                public void afterTextChanged(Editable s) {
+                                    //adapter.getFilter().filter(s);
+                                }
+                            });
+                            progressDialog.hide();
+                            listaModelos.setClickable(true);
+                            listaModelos.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                    Object o = listaModelos.getItemAtPosition(position);
+                                    String str = (String) o;//As you are using Default String Adapter
+                                    producto.setText(str);
+                                }
+                            });
+                        }
+                    });
+                }
+            };
+            thread.start();
+        }else {
+            Toast.makeText(getContext(), "¡Verifique su conexión a internet!",Toast.LENGTH_SHORT).show();
+            progressDialog.dismiss();
+        }
+
+        listar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listarVenta();
+            }
+        });
+
+        buscarID.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                buscarProductoId();
+            }
+        });
+
+        vender.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                registrarVenta();
+            }
+        });
+
+        return view;
     }
+
+    private void registrarVenta(){
+        if (producto.getText().toString().isEmpty() || precioVenta.getText().toString().isEmpty() || cantidad.getText().toString().isEmpty()) {
+            Toast.makeText(getContext(), "¡Complete los campos!", Toast.LENGTH_LONG).show();
+        } else {
+            String cedulaEmpleado = "";
+            String[] emp = spEmpleado.getSelectedItem().toString().split(" - ");
+            for (int i=0; i < emp.length; i++){
+                cedulaEmpleado = emp[1].toString();
+            }
+
+            String id_producto = "";
+            String[] prod = producto.getText().toString().split(" - ");
+            for (int i=0; i < prod.length; i++) {
+                id_producto = prod[0].toString();
+            }
+
+            final int precioTotal = Integer.parseInt(precioVenta.getText().toString()) * Integer.parseInt(cantidad.getText().toString());
+            final char[] cant = cantidad.getText().toString().toCharArray();
+            //agregas un mensaje en el ProgressDialog
+            progressDialog.setMessage("Cargando...");
+            //muestras el ProgressDialog
+            progressDialog.show();
+            //CODIGO PARA VALIDAR SI EL DISPOSITIVO ESTA CONECTADO A INTERNET
+            ConnectivityManager con = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = con.getActiveNetworkInfo();
+            if (networkInfo != null && networkInfo.isConnected()) {
+                final String finalCedulaEmpleado = cedulaEmpleado;
+                final String finalId_producto = id_producto;
+                Thread thread = new Thread() {
+                    @Override
+                    public void run() {
+                        final String resultado = enviarDatosVentaGET(finalId_producto, precioTotal, Integer.parseInt(cantidad.getText().toString()),
+                                finalCedulaEmpleado);
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                int r = obtenerDatosJSON(resultado);
+                                if (r > 0) {
+                                    progressDialog.dismiss();
+                                    producto.setText("");
+                                    precioVenta.setText("");
+                                    cantidad.setText("");
+                                    Toast.makeText(getContext(), "Se ha registrado la venta exitosamente", Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(getContext(), "->" + resultado, Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(getContext(), "¡Error al registrar!", Toast.LENGTH_SHORT).show();
+                                    progressDialog.hide();
+                                }
+                                progressDialog.hide();
+                            }
+                        });
+                    }
+                };
+                thread.start();
+            } else {
+                Toast.makeText(getContext(), "¡Verifique su conexión a internet!", Toast.LENGTH_SHORT).show();
+                progressDialog.dismiss();
+            }
+        }
+    }
+
+    private void listarVenta(){
+        /*
+        Intent intent = new Intent(getContext(), ListarVentasActivity.class);
+        startActivity(intent);
+        */
+    }
+
+    private void buscarProductoId(){
+
+    }
+
+    /*
+     * METODO PARA OBTENER LOS DATOS DE LOS PRODUCTOS
+     * */
+    public String cargarDatosGET(){
+        URL url = null;
+        String linea = "";
+        int respuesta = 0;
+        StringBuilder resul = null;
+        String url_local = "http://192.168.56.1/ServiciosWeb/cargarProductosBD.php?cedula=" + cedula_U;
+        String url_aws = "http://52.67.38.127/hitech/" + cedula_U;
+
+        try{
+            //LA IP SE CAMBIA CON RESPECTO O EN BASE A LA MAQUINA EN LA CUAL SE ESTA EJECUTANDO YA QUE NO TODAS LAS IP SON LAS MISMAS EN LOS EQUIPOS
+            url = new URL(url_aws);
+            HttpURLConnection conection = (HttpURLConnection) url.openConnection();
+            respuesta = conection.getResponseCode();
+            resul = new StringBuilder();
+            if (respuesta == HttpURLConnection.HTTP_OK){
+                InputStream inputStream = new BufferedInputStream(conection.getInputStream());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                while ((linea = reader.readLine()) != null){
+                    resul.append(linea);
+                }
+            }
+        }catch (Exception e){
+            return e.getMessage();
+        }
+        return resul.toString();
+    }
+
+    /*
+     * METODO PARA ENVIAR LOS DATOS DE LA VENTA AL SERVIDOR POR WEB SERVICES
+     * */
+    public String enviarDatosVentaGET(String producto, int precio, int cantidad, String cedula){
+        URL url = null;
+        String linea = "";
+        int respuesta = 0;
+        StringBuilder resul = null;
+        String url_local = "http://192.168.56.1/ServiciosWeb/registrarVentaBD.php";
+        String url_aws = "http://52.67.38.127/hitech/";
+
+        try{
+            //LA IP SE CAMBIA CON RESPECTO O EN BASE A LA MAQUINA EN LA CUAL SE ESTA EJECUTANDO YA QUE NO TODAS LAS IP SON LAS MISMAS EN LOS EQUIPOS
+            url = new URL(url_aws + "?producto=" + producto + "&cantidad=" + cantidad + "&precio=" + precio + "&empleado=" + cedula);
+            HttpURLConnection conection = (HttpURLConnection) url.openConnection();
+            respuesta = conection.getResponseCode();
+            resul = new StringBuilder();
+            if (respuesta == HttpURLConnection.HTTP_OK){
+                InputStream inputStream = new BufferedInputStream(conection.getInputStream());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                while ((linea = reader.readLine()) != null){
+                    resul.append(linea);
+                }
+            }
+        }catch (Exception e){
+            return e.getMessage();
+        }
+        return resul.toString();
+    }
+
+    /*
+     * METODO PARA RECIBIR LOS EMPLEADOS REGISTRADOS
+     * */
+    public String recibirDatosEmpleadosGET(){
+        URL url = null;
+        String linea = "";
+        int respuesta = 0;
+        StringBuilder resul = null;
+        String url_local = "http://192.168.56.1/ServiciosWeb/empleadosBD.php";
+        //DDIRECCION DEL NUEVO SERVICIO DE LA NUEVA BD
+        String url_aws = "http://52.67.38.127/hitech/";
+
+        try{
+            //LA IP SE CAMBIA CON RESPECTO O EN BASE A LA MAQUINA EN LA CUAL SE ESTA EJECUTANDO YA QUE NO TODAS LAS IP SON LAS MISMAS EN LOS EQUIPOS
+            url = new URL(url_aws);
+            HttpURLConnection conection = (HttpURLConnection) url.openConnection();
+            respuesta = conection.getResponseCode();
+            resul = new StringBuilder();
+            if (respuesta == HttpURLConnection.HTTP_OK){
+                InputStream inputStream = new BufferedInputStream(conection.getInputStream());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                while ((linea = reader.readLine()) != null){
+                    resul.append(linea);
+                }
+            }
+        }catch (Exception e){
+            return e.getMessage();
+        }
+        return resul.toString();
+    }
+
+    /* SECTOR DE CODIGO QUE PEERMITE CARRGAR LOS EMPLEADOS
+     *  EN UN ARREGLO PARA LUEGO CARGARLOS EN UN LISTVIEW
+     * */
+    public ArrayList<String> listaEmpleados(String response){
+        ArrayList<String> listado = new ArrayList<String>();
+        try{
+            JSONArray jsonArray = new JSONArray(response);
+            String texto = "";
+            for (int i = 0;i<jsonArray.length();i++){
+                texto = jsonArray.getJSONObject(i).getString("nombre") + " - " + jsonArray.getJSONObject(i).getString("cedula");
+                listado.add(texto);
+            }
+        }catch (Exception e){}
+        return listado;
+    }
+
+    /* SECTOR DE CODIGO QUE PEERMITE CARRGAR LOS PRODUCTOS EN UN ARREGLO
+     * PARA LUEGO CARGARLOS EN UN LISTVIEW
+     * */
+    public ArrayList<String> listaProductos(String response){
+        ArrayList<String> listado = new ArrayList<String>();
+        try{
+            JSONArray jsonArray = new JSONArray(response);
+            String texto = "";
+            for (int i = 0; i < jsonArray.length(); i++){
+                texto = jsonArray.getJSONObject(i).getString("id_prodtienda") + " - "
+                        + jsonArray.getJSONObject(i).getString("nombre") + " - "
+                        + jsonArray.getJSONObject(i).getString("modelo");
+                listado.add(texto);
+            }
+        }catch (Exception e){}
+        return listado;
+    }
+
+    /* METODO QUE PERMITE OBTENER EL JSON
+     * Y RECORRERLO Y SABER SI RECIBIO O NO DATOS
+     * */
+    public int obtenerDatosJSON(String response){
+        int res = 0;
+        try {
+            JSONArray jsonArray = new JSONArray(response);
+            if (jsonArray.length() > 0 ){
+                res = 1;
+            }
+        }catch (Exception e){}
+        return res;
+    }
+
+    /* METODO PARA CARGAR EL ARRAYLIST
+     *  DE EMPLEADOS EN EL SPINNER
+     * */
+    public void cargarSpinner(ArrayList<String> empleado){
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_list_item_1, empleado);
+        spEmpleado = (Spinner) view.findViewById(R.id.spEmpleadoVenQR);
+        spEmpleado.setAdapter(adapter);
+    }
+
+    /* METODO QUE PERMITE CARGAR EL ARRAYLIST DE
+     *  PRODUCTOS EN EL LISTVIEW
+     * */
+    public void cargarLista(ArrayList<String> listaProd) {
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_list_item_1, listaProd);
+        listaModelos = (ListView) view.findViewById(R.id.listaProductosVentas);
+        listaModelos.setAdapter(adapter);
+    }
+
+    private void cargarPreferencias(){
+        SharedPreferences preferences = getActivity().getSharedPreferences("Preferences", Context.MODE_PRIVATE);
+        cedula_U = preferences.getString("cedula","");
+        //tienda = preferences.getString("tienda","");
+    }
+
+    //****************** ================= FIN CODIGO ================= ******************//
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -75,6 +413,7 @@ public class VentaFragment extends Fragment {
         }
     }
 
+    /*
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -85,23 +424,13 @@ public class VentaFragment extends Fragment {
                     + " must implement OnFragmentInteractionListener");
         }
     }
-
+    */
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);

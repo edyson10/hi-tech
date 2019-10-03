@@ -1,32 +1,49 @@
 package com.desoft.hi_tech.Fragments;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.Toast;
 
 import com.desoft.hi_tech.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link BodegaFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link BodegaFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class BodegaFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+import org.json.JSONArray;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+
+
+public class BodegaFragment extends Fragment {
+
+    View view;
+    EditText producto;
+    Button buscar;
+    ListView listProducto;
+    ArrayAdapter<String> adapter;
+    String cedula_U;
+    private ProgressDialog progressDialog;
 
     private OnFragmentInteractionListener mListener;
 
@@ -34,21 +51,9 @@ public class BodegaFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment BodegaFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static BodegaFragment newInstance(String param1, String param2) {
         BodegaFragment fragment = new BodegaFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -56,8 +61,6 @@ public class BodegaFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
 
@@ -65,7 +68,231 @@ public class BodegaFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_bodega, container, false);
+        view = inflater.inflate(R.layout.fragment_bodega, container, false);
+        progressDialog = new ProgressDialog(getContext());
+        cargarPreferencias();
+
+        producto = (EditText) view.findViewById(R.id.txtBuscarBodega);
+        buscar = (Button) view.findViewById(R.id.btnBuscarBodega);
+        listProducto = (ListView) view.findViewById(R.id.listProductosBodega);
+
+        ConnectivityManager con = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = con.getActiveNetworkInfo();
+        if(networkInfo != null && networkInfo.isConnected()) {
+            Thread thread = new Thread(){
+                @Override
+                public void run() {
+                    final String resultado = obtenerDatosGET();
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            cargarLista(listaProductos(resultado));
+                            adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, listaProductos(resultado));
+                            listProducto.setAdapter(adapter);
+                            producto.addTextChangedListener(new TextWatcher() {
+                                @Override
+                                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                                    //adapter.getFilter().filter(s);
+                                }
+
+                                @Override
+                                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                                    adapter.getFilter().filter(s);
+                                }
+
+                                @Override
+                                public void afterTextChanged(Editable s) {
+                                    //adapter.getFilter().filter(s);
+                                }
+                            });
+                            progressDialog.hide();
+                        }
+                    });
+                    listProducto.setClickable(true);
+                    listProducto.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            Object o = listProducto.getItemAtPosition(position);
+                            String str = (String) o;//As you are using Default String Adapter
+                            producto.setText(str);
+                        }
+                    });
+                }
+            };
+            thread.start();
+        }else {
+            Toast.makeText(getContext(), "Verifique su conexión a internet",Toast.LENGTH_SHORT).show();
+            progressDialog.dismiss();
+        }
+
+        buscar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                buscarProductoBodega();
+            }
+        });
+
+        return view;
+    }
+
+    private void buscarProductoBodega(){
+        if (producto.getText().toString().isEmpty()) {
+            Toast.makeText(getContext(), "¡Complete los campos!", Toast.LENGTH_LONG).show();
+        }else {
+            String[] prod = producto.getText().toString().split(" - ");
+            String art = "";
+            String mod = "";
+            for (int i = 0; i < prod.length; i++) {
+                art = prod[0].toString();
+                mod = prod[1].toString();
+            }
+
+            final String finalArt = art;
+            final String finalMod = mod;
+            //agregas un mensaje en el ProgressDialog
+            progressDialog.setMessage("Cargando...");
+            //muestras el ProgressDialog
+            progressDialog.show();
+            buscarProducto(art, mod);
+        }
+    }
+
+    private void buscarProducto(final String marca, final String modelo){
+        Thread thread = new Thread(){
+            @Override
+            public void run() {
+                final String resultado = buscarDatosGET(marca,modelo);
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        alertOneButton(cargarProductos(resultado));
+                        progressDialog.hide();
+                    }
+                });
+            }
+        };
+        thread.start();
+    }
+
+    //METODO PARA OBTENER LOS DATOS DE LOS PRODUCTOS
+    private String obtenerDatosGET(){
+        URL url = null;
+        String linea = "";
+        int respuesta = 0;
+        StringBuilder resul = null;
+        String url_local = "http://192.168.1.3/ServiciosWeb/cargarProductosGeneral.php";
+        String url_aws = "http://52.67.38.127/hitech/";
+
+        try{
+            //LA IP SE CAMBIA CON RESPECTO O EN BASE A LA MAQUINA EN LA CUAL SE ESTA EJECUTANDO YA QUE NO TODAS LAS IP SON LAS MISMAS EN LOS EQUIPOS
+            url = new URL(url_aws);
+            HttpURLConnection conection = (HttpURLConnection) url.openConnection();
+            respuesta = conection.getResponseCode();
+            resul = new StringBuilder();
+            if (respuesta == HttpURLConnection.HTTP_OK){
+                InputStream inputStream = new BufferedInputStream(conection.getInputStream());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                while ((linea = reader.readLine()) != null){
+                    resul.append(linea);
+                }
+            }
+        }catch (Exception e){
+            return e.getMessage();
+        }
+        return resul.toString();
+    }
+
+    //METODO PARA ENVIAR LOS DATOS AL SERVIDOR LOCAL
+    public String buscarDatosGET(String marca, String modelo){
+        URL url = null;
+        String linea = "";
+        int respuesta = 0;
+        StringBuilder resul = null;
+        String url_aws = "http://52.67.38.127/hitech/";
+        String url_local = "http://192.168.1.3/ServiciosWeb/buscarProducto.php";
+        String mod = modelo.replace(" ", "%20");
+        String mar = marca.replace(" ", "%20");
+
+        try{
+            //LA IP SE CAMBIA CON RESPECTO O EN BASE A LA MAQUINA EN LA CUAL SE ESTA EJECUTANDO YA QUE NO TODAS LAS IP SON LAS MISMAS EN LOS EQUIPOS
+            url = new URL(url_aws + "?marca=" + mar + "&modelo=" + mod);
+            HttpURLConnection conection = (HttpURLConnection) url.openConnection();
+            respuesta = conection.getResponseCode();
+            resul = new StringBuilder();
+            if (respuesta == HttpURLConnection.HTTP_OK){
+                InputStream inputStream = new BufferedInputStream(conection.getInputStream());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                while ((linea = reader.readLine()) != null){
+                    resul.append(linea);
+                }
+            }
+        }catch (Exception e){
+            return e.getMessage();
+        }
+        return resul.toString();
+    }
+
+    //METODO QUE PERMITE CARGAR EL LISTVIEW
+    private void cargarLista(ArrayList<String> listaProd) {
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_list_item_1, listaProd);
+        listProducto = (ListView) view.findViewById(R.id.listProductosBodega);
+        listProducto.setAdapter(adapter);
+    }
+
+    //ARREGLO SPINNER
+    private ArrayList<String> listaProductos(String response){
+        ArrayList<String> listado = new ArrayList<String>();
+        try{
+            JSONArray jsonArray = new JSONArray(response);
+            String texto = "";
+            for (int i = 0;i<jsonArray.length();i++){
+                texto = jsonArray.getJSONObject(i).getString("articulo") + " - " + jsonArray.getJSONObject(i).getString("modelo");
+                listado.add(texto);
+            }
+        }catch (Exception e){}
+        return listado;
+    }
+
+    //ARREGLO SPINNER
+    private ArrayList<String> cargarProductos(String response){
+        ArrayList<String> listado = new ArrayList<String>();
+        try{
+            JSONArray jsonArray = new JSONArray(response);
+            String texto = "";
+            for (int i = 0;i<jsonArray.length();i++){
+                texto = " \n Articulo: " + jsonArray.getJSONObject(i).getString("articulo") + " \n "
+                        + "Modelo: " +  jsonArray.getJSONObject(i).getString("modelo") + " \n "
+                        + "Cantidad: " + jsonArray.getJSONObject(i).getString("cantidad") + " \n "
+                        + "Bodega: " + jsonArray.getJSONObject(i).getString("bodega");
+                listado.add(texto);
+            }
+        }catch (Exception e){}
+        return listado;
+    }
+
+    private void alertOneButton(ArrayList<String> listaProd) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        //builder.setIcon(R.drawable.icono);
+        builder.setTitle("Productos");
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_list_item_1, listaProd);
+
+        builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) {
+                // will toast your selection
+                dialog.dismiss();
+            }
+        }).setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        }).show();
+    }
+
+    private void cargarPreferencias(){
+        SharedPreferences preferences = getActivity().getSharedPreferences("Preferences", Context.MODE_PRIVATE);
+        cedula_U = preferences.getString("cedula","");
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -75,6 +302,7 @@ public class BodegaFragment extends Fragment {
         }
     }
 
+    /*
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -85,6 +313,7 @@ public class BodegaFragment extends Fragment {
                     + " must implement OnFragmentInteractionListener");
         }
     }
+     */
 
     @Override
     public void onDetach() {
@@ -92,16 +321,6 @@ public class BodegaFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
