@@ -7,7 +7,7 @@
         <item
             android:id="@+id/nav_venta"
             android:icon="@drawable/ic_shopping_cart"
-            android:title="@string/menu_bodega" />
+            android:title="@string/menu_venta" />
         <item
             android:id="@+id/nav_reporte"
             android:icon="@drawable/ic_monetization_on"

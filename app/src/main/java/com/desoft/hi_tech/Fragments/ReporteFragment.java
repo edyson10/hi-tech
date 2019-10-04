@@ -65,6 +65,11 @@ public class ReporteFragment extends Fragment {
         progressDialog = new ProgressDialog(getContext());
         cargarPreferencias();
 
+        reporteDia = vista.findViewById(R.id.btnReporteDia);
+        reporteMes = vista.findViewById(R.id.btnReporteMes);
+        utilidad = vista.findViewById(R.id.btnUtilidad);
+        salida = vista.findViewById(R.id.btnRealizarSalida);
+
         //CODIGO FECHA DE ENTREGA ESTIPULADA
         fecha = (TextView) vista.findViewById(R.id.fechaReporte);
         mCurrentDate = Calendar.getInstance();

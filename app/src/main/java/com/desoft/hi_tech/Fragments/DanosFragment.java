@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.desoft.hi_tech.ListarDanoActivity;
 import com.desoft.hi_tech.R;
 
 import org.json.JSONArray;
@@ -205,11 +206,9 @@ public class DanosFragment extends Fragment {
         }
     }
 
-    private void listarDano(){
-        /*
-        Intent intent = new Intent(getContext(), ListarDanosActivity.class);
+    private void listarDano() {
+        Intent intent = new Intent(getContext(), ListarDanoActivity.class);
         startActivity(intent);
-         */
     }
 
     //METODO PARA ENVIAR LOS DATOS AL SERVIDOR LOCAL
@@ -218,7 +217,7 @@ public class DanosFragment extends Fragment {
         String linea = "";
         int respuesta = 0;
         StringBuilder resul = null;
-        String url_aws = "http://18.228.235.94/wifix/ServiciosWeb/salidaProducto.php";
+        String url_aws = "http://52.67.38.127/hitech/salidaProducto.php";
         String url_local = "http://18.228.235.94/wifix/ServiciosWeb/salidaProducto.php";
         String mod = modelo.replace(" ", "%20");
         String mar = marca.replace(" ", "%20");
@@ -250,8 +249,8 @@ public class DanosFragment extends Fragment {
         String linea = "";
         int respuesta = 0;
         StringBuilder resul = null;
+        String url_aws = "http://52.67.38.127/hitech/cargarProductos.php?cedula=" + cedula_U;
         String url_local = "http://192.168.1.6/ServiciosWeb/cargarProductos.php?cedula=" + cedula_U;
-        String url_aws = "http://18.228.235.94/wifix/ServiciosWeb/cargarProductos.php?cedula=" + cedula_U;
 
         try{
             //LA IP SE CAMBIA CON RESPECTO O EN BASE A LA MAQUINA EN LA CUAL SE ESTA EJECUTANDO YA QUE NO TODAS LAS IP SON LAS MISMAS EN LOS EQUIPOS

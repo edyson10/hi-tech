@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -26,9 +27,14 @@ import android.widget.Toast;
 //import com.google.zxing.integration.android.IntentIntegrator;
 //import com.google.zxing.integration.android.IntentResult;
 
+import com.desoft.hi_tech.ListarVentaActivity;
 import com.desoft.hi_tech.R;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -230,15 +236,89 @@ public class VentaFragment extends Fragment {
         }
     }
 
+    /*
+     * METODO DE MOSTRAR LOS DATOS LEYENDO POR MEDIO DEL LECTOR DE CCOIGO QR
+     * */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        IntentResult intentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (intentResult != null) {
+            if (intentResult.getContents() == null) {
+                Toast.makeText(getContext(), "Resultado no encontrado", Toast.LENGTH_SHORT).show();
+            } else {
+                try {
+                    JSONObject obj = new JSONObject(intentResult.getContents());
+                } catch (JSONException ex) {
+                    ex.printStackTrace();
+                    //agregas un mensaje en el ProgressDialog
+                    progressDialog.setMessage("Cargando...");
+                    //muestras el ProgressDialog
+                    progressDialog.show();
+                    //CODIGO PARA VALIDAR SI EL DISPOSITIVO ESTA CONECTADO A INTERNET
+                    ConnectivityManager con = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = con.getActiveNetworkInfo();
+                    if (networkInfo != null && networkInfo.isConnected()) {
+                        //final String finalCedulaEmpleado = ;
+                        final String id = intentResult.getContents();
+                        Thread thread = new Thread() {
+                            @Override
+                            public void run() {
+                                final String resultado = recibirProductoQRGET(id,tienda);
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressDialog.hide();
+                                        listaProductosQR(resultado);
+                                        //Toast.makeText(getContext(), "Producto: " + resultado, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        };
+                        thread.start();
+                    } else {
+                        Toast.makeText(getContext(), "Verifique su conexión a internet", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
     private void listarVenta(){
-        /*
-        Intent intent = new Intent(getContext(), ListarVentasActivity.class);
+        Intent intent = new Intent(getContext(), ListarVentaActivity.class);
         startActivity(intent);
-        */
     }
 
     private void buscarProductoId(){
-
+        //agregas un mensaje en el ProgressDialog
+        progressDialog.setMessage("Cargando...");
+        //muestras el ProgressDialog
+        progressDialog.show();
+        if (!producto.getText().toString().isEmpty()) {
+            Thread thread = new Thread() {
+                @Override
+                public void run() {
+                    String[] prod = producto.getText().toString().split(" - ");
+                    String id = "";
+                    for (int i = 0; i < prod.length; i++) {
+                        id = prod[0].toString();
+                    }
+                    final String resultado = cargarDatosProdIDGET(id);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressDialog.hide();
+                            cargarDatos(resultado);
+                        }
+                    });
+                }
+            };
+            thread.start();
+        } else {
+            progressDialog.hide();
+            Toast.makeText(getContext(),"¡Complete los campos!",Toast.LENGTH_SHORT).show();
+        }
     }
 
     /*
@@ -280,7 +360,7 @@ public class VentaFragment extends Fragment {
         int respuesta = 0;
         StringBuilder resul = null;
         String url_local = "http://192.168.56.1/ServiciosWeb/registrarVentaBD.php";
-        String url_aws = "http://52.67.38.127/hitech/";
+        String url_aws = "http://52.67.38.127/hitech/registrarVenta.php";
 
         try{
             //LA IP SE CAMBIA CON RESPECTO O EN BASE A LA MAQUINA EN LA CUAL SE ESTA EJECUTANDO YA QUE NO TODAS LAS IP SON LAS MISMAS EN LOS EQUIPOS
@@ -309,9 +389,8 @@ public class VentaFragment extends Fragment {
         String linea = "";
         int respuesta = 0;
         StringBuilder resul = null;
+        String url_aws = "http://52.67.38.127/hitech/empleados.php";
         String url_local = "http://192.168.56.1/ServiciosWeb/empleadosBD.php";
-        //DDIRECCION DEL NUEVO SERVICIO DE LA NUEVA BD
-        String url_aws = "http://52.67.38.127/hitech/";
 
         try{
             //LA IP SE CAMBIA CON RESPECTO O EN BASE A LA MAQUINA EN LA CUAL SE ESTA EJECUTANDO YA QUE NO TODAS LAS IP SON LAS MISMAS EN LOS EQUIPOS
@@ -330,6 +409,111 @@ public class VentaFragment extends Fragment {
             return e.getMessage();
         }
         return resul.toString();
+    }
+
+    /*
+     * METODO PARA RECIBIR LOS DATOS DEL PRODUCTO
+     * POR MEDIO DEL CODIGO QR
+     * */
+    public String recibirProductoQRGET(String producto, String tienda){
+        URL url = null;
+        String linea = "";
+        int respuesta = 0;
+        StringBuilder resul = null;
+        String url_local = "http://192.168.56.1/ServiciosWeb/empleadosBD.php";
+        //DDIRECCION DEL NUEVO SERVICIO DE LA NUEVA BD
+        String url_aws = "http://52.67.38.127/hitech/buscarProductoQR.php?";
+
+        try{
+            //LA IP SE CAMBIA CON RESPECTO O EN BASE A LA MAQUINA EN LA CUAL SE ESTA EJECUTANDO YA QUE NO TODAS LAS IP SON LAS MISMAS EN LOS EQUIPOS
+            url = new URL(url_aws + "producto=" + producto + "&tienda=" + tienda);
+            HttpURLConnection conection = (HttpURLConnection) url.openConnection();
+            respuesta = conection.getResponseCode();
+            resul = new StringBuilder();
+            if (respuesta == HttpURLConnection.HTTP_OK){
+                InputStream inputStream = new BufferedInputStream(conection.getInputStream());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                while ((linea = reader.readLine()) != null){
+                    resul.append(linea);
+                }
+            }
+        }catch (Exception e){
+            return e.getMessage();
+        }
+        return resul.toString();
+    }
+
+    /*
+     * METODO PARAA CARGAR LOS DATOS DEL PRODUCTO RECIBIENDO
+     * RECIBIENDO COMO PARAMETRO EL ID DEL PRODUCTO
+     * */
+    public String cargarDatosProdIDGET(String producto) {
+        URL url = null;
+        String linea = "";
+        int respuesta = 0;
+        StringBuilder resul = null;
+        String url_aws = "http://52.67.38.127/hitech/buscarProductoID.php?";
+        String url_local = "http://192.168.56.1/ServiciosWeb/buscarProducto.php?";
+
+        try {
+            //LA IP SE CAMBIA CON RESPECTO O EN BASE A LA MAQUINA EN LA CUAL SE ESTA EJECUTANDO YA QUE NO TODAS LAS IP SON LAS MISMAS EN LOS EQUIPOS
+            url = new URL(url_aws + "producto=" + producto);
+            HttpURLConnection conection = (HttpURLConnection) url.openConnection();
+            respuesta = conection.getResponseCode();
+            resul = new StringBuilder();
+            if (respuesta == HttpURLConnection.HTTP_OK) {
+                InputStream inputStream = new BufferedInputStream(conection.getInputStream());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                while ((linea = reader.readLine()) != null) {
+                    resul.append(linea);
+                }
+            }
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+        return resul.toString();
+    }
+
+    /*
+     * METODO PARA MOSTRAR LOS DATOS RECIBIDOS EN EL JSON EN LOS DIFERENTES CAMPOS
+     * */
+    public void cargarDatos(String response) {
+        JSONArray jsonArray = null;
+        try {
+            jsonArray = new JSONArray(response);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                //Toast.makeText(getContext(), "Hola ", Toast.LENGTH_SHORT).show();
+                precioVenta.setText(jsonArray.getJSONObject(i).getString("precioVenta"));
+            }
+        } catch (Exception ex) {
+            Toast.makeText(getContext(), "Error: " + ex, Toast.LENGTH_SHORT).show();
+            for (int i = 0; i < jsonArray.length(); i++) {
+                try {
+                    precioVenta.setText(jsonArray.getJSONObject(i).getString("precioVenta"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /* SECTOR DE CODIGO QUE PEERMITE CARRGAR LOS PRODUCTOS EN UN ARREGLO
+     * PARA LUEGO CARGARLOS EN UN LISTVIEW
+     * */
+    public ArrayList<String> listaProductosQR(String response){
+        ArrayList<String> listado = new ArrayList<String>();
+        try{
+            JSONArray jsonArray = new JSONArray(response);
+            String texto = "";
+            for (int i = 0; i < jsonArray.length(); i++){
+                precioVenta.setText(jsonArray.getJSONObject(i).getString("precioVenta"));
+                producto.setText(jsonArray.getJSONObject(i).getString("id_prodtienda") + " - "
+                        + jsonArray.getJSONObject(i).getString("nombre") + " - "
+                        + jsonArray.getJSONObject(i).getString("modelo"));
+                listado.add(texto);
+            }
+        }catch (Exception e){}
+        return listado;
     }
 
     /* SECTOR DE CODIGO QUE PEERMITE CARRGAR LOS EMPLEADOS

@@ -9,13 +9,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ListarDanoActivity"></activity>
+        <activity android:name=".CaptureActivityPortrait"></activity>
+        <activity android:name=".ListarDanoActivity" />
         <activity android:name=".EliminarVentaActivity" />
         <activity android:name=".EliminarSalidaActivity" />
         <activity android:name=".ListarVentaActivity" />
         <activity
             android:name=".SplashActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
 
             <!-- CODIGO PARA QUE DIGA CUAL ES LA ACTIVITY QUE SE MOSTRRA AL INCIAR A APLICACIÓN -->
             <intent-filter>

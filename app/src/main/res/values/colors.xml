@@ -13,6 +13,7 @@
     <color name="primaryTextColor">#ffffff</color>
     <color name="secondaryTextColor">#000000</color>
     <color name="accent">#ef6871</color>
+    <color name="orange">#FF3608</color>
 
     <color name="white">#ffffff</color>
 </resources>
