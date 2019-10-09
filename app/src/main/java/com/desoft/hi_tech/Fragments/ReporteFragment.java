@@ -19,6 +19,7 @@ import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.desoft.hi_tech.ListarSalidasActivity;
 import com.desoft.hi_tech.R;
 
 import java.util.Calendar;
@@ -112,6 +113,13 @@ public class ReporteFragment extends Fragment {
             }
         });
 
+        salida.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                vistaSalida();
+            }
+        });
+
         return vista;
     }
 
@@ -159,6 +167,11 @@ public class ReporteFragment extends Fragment {
         Intent intent = new Intent(getContext(), UtilidadActivity.class);
         startActivity(intent);
          */
+    }
+
+    private void vistaSalida(){
+        Intent intent = new Intent(getContext(), ListarSalidasActivity.class);
+        startActivity(intent);
     }
 
     private void cargarPreferencias(){
