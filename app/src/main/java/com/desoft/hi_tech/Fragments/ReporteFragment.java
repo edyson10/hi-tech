@@ -21,6 +21,8 @@ import android.widget.Toast;
 
 import com.desoft.hi_tech.ListarSalidasActivity;
 import com.desoft.hi_tech.R;
+import com.desoft.hi_tech.RegistrarSalidaActivity;
+import com.desoft.hi_tech.UtilidadActivity;
 
 import java.util.Calendar;
 
@@ -32,7 +34,6 @@ public class ReporteFragment extends Fragment {
     Calendar mCurrentDate;
     int dia, mes, anio;
     Button reporteDia, reporteMes, salida, utilidad;
-    String recuperado = "";
     String tienda;
     private ProgressDialog progressDialog;
 
@@ -163,14 +164,12 @@ public class ReporteFragment extends Fragment {
     }
 
     private void verUtilidad(){
-        /*
         Intent intent = new Intent(getContext(), UtilidadActivity.class);
         startActivity(intent);
-         */
     }
 
     private void vistaSalida(){
-        Intent intent = new Intent(getContext(), ListarSalidasActivity.class);
+        Intent intent = new Intent(getContext(), RegistrarSalidaActivity.class);
         startActivity(intent);
     }
 
@@ -185,6 +184,8 @@ public class ReporteFragment extends Fragment {
             utilidad.setTextColor(Color.RED);
         }
     }
+
+    // ======FIN DEL CODIGO =====
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {

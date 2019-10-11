@@ -330,7 +330,7 @@ public class VentaFragment extends Fragment {
         int respuesta = 0;
         StringBuilder resul = null;
         String url_local = "http://192.168.56.1/ServiciosWeb/cargarProductosBD.php?cedula=" + cedula_U;
-        String url_aws = "http://52.67.38.127/hitech/" + cedula_U;
+        String url_aws = "http://52.67.38.127/hitech/cargarProductos.php?cedula=" + cedula_U;
 
         try{
             //LA IP SE CAMBIA CON RESPECTO O EN BASE A LA MAQUINA EN LA CUAL SE ESTA EJECUTANDO YA QUE NO TODAS LAS IP SON LAS MISMAS EN LOS EQUIPOS
