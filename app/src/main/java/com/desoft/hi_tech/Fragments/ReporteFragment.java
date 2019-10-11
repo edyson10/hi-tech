@@ -164,11 +164,8 @@ public class ReporteFragment extends Fragment {
     }
 
     private void verUtilidad(){
-        Toast.makeText(getContext(), "¡Opción no disponible!", Toast.LENGTH_SHORT).show();
-        /*
         Intent intent = new Intent(getContext(), UtilidadActivity.class);
         startActivity(intent);
-        */
     }
 
     private void vistaSalida(){

@@ -129,7 +129,7 @@ public class EliminarVentaActivity extends AppCompatActivity {
                         Thread thread = new Thread() {
                             @Override
                             public void run() {
-                                final String res = eliminarDatosGET(Integer.parseInt(txtVenta.getText().toString()), articulo, modelo, cantidad);
+                                final String res = eliminarDatosGET(Integer.parseInt(txtVenta.getText().toString()), cantidad);
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -215,18 +215,16 @@ public class EliminarVentaActivity extends AppCompatActivity {
     }
 
     //METODO PARA RECIBIR LOS DATOS DEL SERRVIDOR EN JSON
-    public String eliminarDatosGET(int id_venta, String articulo, String modelo, int cantidad){
+    public String eliminarDatosGET(int id_venta, int cantidad){
         URL url = null;
         String linea = "";
         int respuesta = 0;
         StringBuilder resul = null;
         String url_local = "http://192.168.1.4/ServiciosWeb/eliminarVenta.php?";
         String url_aws = "http://52.67.38.127/hitech/eliminarVenta.php?";
-        String art = articulo.replace(" ", "%20");
-        String mod = modelo.replace(" ", "%20");
 
         try{
-            url = new URL(url_aws + "venta=" + id_venta + "&cantidad=" + cantidad + "&articulo=" + art + "&modelo=" + mod);
+            url = new URL(url_aws + "venta=" + id_venta + "&cantidad=" + cantidad);
             HttpURLConnection conection = (HttpURLConnection) url.openConnection();
             respuesta = conection.getResponseCode();
             resul = new StringBuilder();

@@ -482,7 +482,6 @@ public class VentaFragment extends Fragment {
         try {
             jsonArray = new JSONArray(response);
             for (int i = 0; i < jsonArray.length(); i++) {
-                //Toast.makeText(getContext(), "Hola ", Toast.LENGTH_SHORT).show();
                 precioVenta.setText(jsonArray.getJSONObject(i).getString("precioVenta"));
             }
         } catch (Exception ex) {

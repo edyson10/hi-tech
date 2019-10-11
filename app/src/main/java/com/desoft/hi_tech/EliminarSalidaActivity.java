@@ -225,7 +225,7 @@ public class EliminarSalidaActivity extends AppCompatActivity {
             JSONArray jsonArray = new JSONArray(response);
             String texto = "";
             for (int i = 0;i<jsonArray.length();i++){
-                texto = "ID Salida: " + jsonArray.getJSONObject(i).getString("id_baja") + "\n"
+                texto = "ID Salida: " + jsonArray.getJSONObject(i).getString("id_salida") + "\n"
                         + "Tipo salida: " + jsonArray.getJSONObject(i).getString("tipo_baja") + "\n"
                         + "Descripcion: " + jsonArray.getJSONObject(i).getString("descripcion") + "\n"
                         + "Precio: " + jsonArray.getJSONObject(i).getString("precio") + "\n"

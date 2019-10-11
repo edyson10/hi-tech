@@ -12,4 +12,19 @@
     android:orientation="vertical"
     tools:context=".UtilidadActivity">
 
+    <TextView
+        android:id="@+id/txtTituloUtilidad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="UTILIDAD DIA"
+        android:textSize="18sp"
+        android:textStyle="bold"/>
+    <ListView
+        android:id="@+id/listUtilidadPal"
+        android:layout_marginTop="10sp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:dividerHeight="6sp">
+    </ListView>
 </LinearLayout>

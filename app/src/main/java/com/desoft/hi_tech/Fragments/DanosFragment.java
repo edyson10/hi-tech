@@ -283,15 +283,17 @@ public class DanosFragment extends Fragment {
         return res;
     }
 
-    //ARREGLO SPINNER
-    private ArrayList<String> listaProductos(String response){
+    /* SECTOR DE CODIGO QUE PEERMITE CARRGAR LOS PRODUCTOS EN UN ARREGLO
+     * PARA LUEGO CARGARLOS EN UN LISTVIEW
+     * */
+    public ArrayList<String> listaProductos(String response){
         ArrayList<String> listado = new ArrayList<String>();
         try{
             JSONArray jsonArray = new JSONArray(response);
             String texto = "";
-            for (int i = 0;i<jsonArray.length();i++){
-                texto = jsonArray.getJSONObject(i).getString("id_producto") + " - "
-                        + jsonArray.getJSONObject(i).getString("articulo") + " - "
+            for (int i = 0; i < jsonArray.length(); i++){
+                texto = jsonArray.getJSONObject(i).getString("id_prodtienda") + " - "
+                        + jsonArray.getJSONObject(i).getString("nombre") + " - "
                         + jsonArray.getJSONObject(i).getString("modelo");
                 listado.add(texto);
             }
@@ -299,8 +301,10 @@ public class DanosFragment extends Fragment {
         return listado;
     }
 
-    //METODO QUE PERMITE CARGAR EL LISTVIEW
-    private void cargarLista(ArrayList<String> listaProd) {
+    /* METODO QUE PERMITE CARGAR EL ARRAYLIST DE
+     *  PRODUCTOS EN EL LISTVIEW
+     * */
+    public void cargarLista(ArrayList<String> listaProd) {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_list_item_1, listaProd);
         listaProductos = (ListView) view.findViewById(R.id.listaModelosDanos);
         listaProductos.setAdapter(adapter);
@@ -310,6 +314,8 @@ public class DanosFragment extends Fragment {
         SharedPreferences preferences = getActivity().getSharedPreferences("Preferences", Context.MODE_PRIVATE);
         cedula_U = preferences.getString("cedula","");
     }
+
+    // ===== FIN DEL CODIGO =====
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {

@@ -123,8 +123,11 @@ public class MainActivity extends AppCompatActivity
             miFragment = new EliminarFragment();
             fragmentSeleccionado = true;
         } else if (id == R.id.nav_danos) {
+            Toast.makeText(getApplicationContext(), "¡Opcion aun no disponible!", Toast.LENGTH_SHORT).show();
+            /*
             miFragment = new DanosFragment();
             fragmentSeleccionado = true;
+             */
         } else if (id == R.id.nav_settings) {
             Toast.makeText(getApplicationContext(), "¡Opcion aun no disponible!", Toast.LENGTH_SHORT).show();
             /*
