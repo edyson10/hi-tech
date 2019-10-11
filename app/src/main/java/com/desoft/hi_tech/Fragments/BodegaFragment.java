@@ -128,7 +128,8 @@ public class BodegaFragment extends Fragment {
         buscar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                buscarProductoBodega();
+                Toast.makeText(getContext(), "¡Opción no disponible!", Toast.LENGTH_SHORT).show();
+                //buscarProductoBodega();
             }
         });
 
@@ -181,7 +182,7 @@ public class BodegaFragment extends Fragment {
         int respuesta = 0;
         StringBuilder resul = null;
         String url_local = "http://192.168.1.3/ServiciosWeb/cargarProductosGeneral.php";
-        String url_aws = "http://52.67.38.127/hitech/";
+        String url_aws = "http://52.67.38.127/hitech/productosGenerales.php";
 
         try{
             //LA IP SE CAMBIA CON RESPECTO O EN BASE A LA MAQUINA EN LA CUAL SE ESTA EJECUTANDO YA QUE NO TODAS LAS IP SON LAS MISMAS EN LOS EQUIPOS
@@ -239,21 +240,21 @@ public class BodegaFragment extends Fragment {
         listProducto.setAdapter(adapter);
     }
 
-    //ARREGLO SPINNER
+    //CARGA LOS PRODUCTOS EN EL LISTVIEW
     private ArrayList<String> listaProductos(String response){
         ArrayList<String> listado = new ArrayList<String>();
         try{
             JSONArray jsonArray = new JSONArray(response);
             String texto = "";
             for (int i = 0;i<jsonArray.length();i++){
-                texto = jsonArray.getJSONObject(i).getString("articulo") + " - " + jsonArray.getJSONObject(i).getString("modelo");
+                texto = jsonArray.getJSONObject(i).getString("nombre") + " - " + jsonArray.getJSONObject(i).getString("modelo");
                 listado.add(texto);
             }
         }catch (Exception e){}
         return listado;
     }
 
-    //ARREGLO SPINNER
+    //CARGA LOS PRODUCTOS EN EL ALERTDIALOG
     private ArrayList<String> cargarProductos(String response){
         ArrayList<String> listado = new ArrayList<String>();
         try{

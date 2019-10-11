@@ -161,9 +161,9 @@ public class EditarFragment extends Fragment {
         try {
             JSONArray jsonArray = new JSONArray(response);
             for (int i = 0; i < jsonArray.length(); i++) {
-                txtArticuloAct.setText(jsonArray.getJSONObject(i).getString("articulo"));
+                txtArticuloAct.setText(jsonArray.getJSONObject(i).getString("nombre"));
                 txtModeloAct.setText(jsonArray.getJSONObject(i).getString("modelo"));
-                txtPrecioCosto.setText(jsonArray.getJSONObject(i).getString("precioUnitario"));
+                txtPrecioCosto.setText(jsonArray.getJSONObject(i).getString("precioCosto"));
                 txtPrecioVenta.setText(jsonArray.getJSONObject(i).getString("precioVenta"));
                 txtCantidadProd.setText(jsonArray.getJSONObject(i).getString("cantidad"));
             }
@@ -236,7 +236,7 @@ public class EditarFragment extends Fragment {
         int respuesta = 0;
         StringBuilder resul = null;
         String url_aws = "http://52.67.38.127/hitech/editarProducto.php";
-        String url_local = "http://192.168.1.6/ServiciosWeb/actualizarVenta.php";
+        String url_local = "http://192.168.1.6/hitech/editarProducto.php";
 
         try {
             //LA IP SE CAMBIA CON RESPECTO O EN BASE A LA MAQUINA EN LA CUAL SE ESTA EJECUTANDO YA QUE NO TODAS LAS IP SON LAS MISMAS EN LOS EQUIPOS
@@ -294,16 +294,6 @@ public class EditarFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
