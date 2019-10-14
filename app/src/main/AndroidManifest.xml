@@ -22,7 +22,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".UtilidadActivity"></activity>
+        <activity android:name=".VentaTelefonoActivity"></activity>
+        <activity android:name=".RegistrarArticuloActivity" />
+        <activity android:name=".RegistrarProductoActivity" />
+        <activity android:name=".UtilidadActivity" />
         <activity android:name=".ListarSalidasActivity" />
         <activity android:name=".RegistrarSalidaActivity" />
         <activity android:name=".CaptureActivityPortrait" />
