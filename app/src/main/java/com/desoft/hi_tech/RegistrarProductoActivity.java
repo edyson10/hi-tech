@@ -32,7 +32,7 @@ public class RegistrarProductoActivity extends AppCompatActivity {
 
     Spinner spArticulo;
     EditText modelo, precioUnitario, precioVenta, descripcion, cantidad;
-    Button registrar, vistaArticulo;
+    Button registrar;
     ImageView foto;
     ArrayAdapter<String> adapter;
     private ProgressDialog progressDialog;
@@ -50,19 +50,11 @@ public class RegistrarProductoActivity extends AppCompatActivity {
         descripcion = (EditText) findViewById(R.id.txtDescripcionRegistrar);
         cantidad = (EditText) findViewById(R.id.txtCantidadRegistrar);
         registrar = (Button) findViewById(R.id.btnRegistrarProducto);
-        vistaArticulo = (Button) findViewById(R.id.btnAgregarArticulo);
 
         registrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 registrarProducto();
-            }
-        });
-
-        vistaArticulo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                vistaAgregarArticulo();
             }
         });
 
@@ -134,7 +126,6 @@ public class RegistrarProductoActivity extends AppCompatActivity {
             }
             progressDialog.hide();
         }
-
     }
 
     private void vistaAgregarArticulo(){

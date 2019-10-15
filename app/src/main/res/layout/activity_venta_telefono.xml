@@ -82,7 +82,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.1"
-            android:text="LISTAR VENTAS"/>
+            android:text="LISTAR TELEFONO"/>
     </LinearLayout>
     <ListView
         android:id="@+id/listaTelefonos"

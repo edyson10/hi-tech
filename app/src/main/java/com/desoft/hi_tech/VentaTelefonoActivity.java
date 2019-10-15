@@ -60,7 +60,7 @@ public class VentaTelefonoActivity extends AppCompatActivity {
         cargarPreferencias();
 
         codigoqr = (ImageButton) findViewById(R.id.btnVenQRTel);
-        producto = (TextView) findViewById(R.id.txtBuscarProductoVenQR);
+        producto = (TextView) findViewById(R.id.txtBuscarProductoVenTel);
         precioVentaTel = (EditText) findViewById(R.id.txtPrecioVenTel);
         spEmpleado = (Spinner) findViewById(R.id.spEmpleadoVenTel);
         buscarIDTel = (ImageButton) findViewById(R.id.btnBuscaProductoVenTel);
@@ -545,7 +545,7 @@ public class VentaTelefonoActivity extends AppCompatActivity {
      * */
     public void cargarSpinner(ArrayList<String> empleado){
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getApplicationContext(), android.R.layout.simple_list_item_1, empleado);
-        spEmpleado = (Spinner) findViewById(R.id.spEmpleadoVenQR);
+        spEmpleado = (Spinner) findViewById(R.id.spEmpleadoVenTel);
         spEmpleado.setAdapter(adapter);
     }
 

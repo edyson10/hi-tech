@@ -108,11 +108,8 @@ public class MainActivity extends AppCompatActivity
             miFragment = new ReporteFragment();
             fragmentSeleccionado = true;
         } else if (id == R.id.nav_producto) {
-            Toast.makeText(getApplicationContext(), "¡Opcion aun no disponible!", Toast.LENGTH_SHORT).show();
-            /*
             miFragment = new ProductoFragment();
             fragmentSeleccionado = true;
-            */
         } else if (id == R.id.nav_bodega) {
             miFragment = new BodegaFragment();
             fragmentSeleccionado = true;
