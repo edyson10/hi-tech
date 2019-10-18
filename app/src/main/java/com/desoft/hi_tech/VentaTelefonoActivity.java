@@ -190,9 +190,10 @@ public class VentaTelefonoActivity extends AppCompatActivity {
                                     producto.setText("");
                                     precioVentaTel.setText("");
                                     Toast.makeText(getApplicationContext(), "Se ha registrado la venta del telefono.", Toast.LENGTH_SHORT).show();
-                                    //Toast.makeText(getContext(), "->" + resultado, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(), "->" + resultado, Toast.LENGTH_SHORT).show();
                                 } else {
                                     Toast.makeText(getApplicationContext(), "¡Error al registrar!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(), "->" + resultado, Toast.LENGTH_SHORT).show();
                                     progressDialog.hide();
                                 }
                                 progressDialog.hide();
@@ -258,7 +259,7 @@ public class VentaTelefonoActivity extends AppCompatActivity {
     }
 
     private void listarVenta(){
-        Intent intent = new Intent(this.getApplicationContext(), ListarVentaActivity.class);
+        Intent intent = new Intent(this.getApplicationContext(), ListarVentaTelefonoActivity.class);
         startActivity(intent);
     }
 
