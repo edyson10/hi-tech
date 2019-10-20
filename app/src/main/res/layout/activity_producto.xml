@@ -6,8 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="16dp"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
+    android:paddingLeft="30dp"
+    android:paddingRight="30dp"
     android:paddingTop="16dp"
     android:orientation="vertical"
     tools:context=".ProductoActivity">
@@ -25,7 +25,7 @@
 
     <Button
         android:id="@+id/btnRegistrarArt"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="100dp"
@@ -33,21 +33,21 @@
 
     <Button
         android:id="@+id/btnRegistrarProd"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="REGISTRAR PRODUCTO"/>
 
     <Button
         android:id="@+id/btnRegistrarTelefono"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="REGISTRAR TELEFONO"/>
 
     <Button
         android:id="@+id/btnRegistrarProdTienda"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="REGISTRAR PRODUCTO EN TIENDA"/>

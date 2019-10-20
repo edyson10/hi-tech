@@ -23,18 +23,26 @@ import java.net.URL;
 public class RegistrarTelefonoActivity extends AppCompatActivity {
 
     Button registrar;
-    EditText imei, marca, modelo, costo, venta;
+    EditText imei, marca, modelo, costo, venta, bodega;
     private ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registrar_telefono);
+
+        /**
+         * Se coloca el nombre de la clase si es una activity,
+         * en caso de que sea un fragment se coloca getAplicationContext();
+         **/
+        progressDialog = new ProgressDialog(RegistrarTelefonoActivity.this);
 
         imei = (EditText) findViewById(R.id.txtImei);
         marca = (EditText) findViewById(R.id.txtMarca);
         modelo = (EditText) findViewById(R.id.txtModelo);
         costo = (EditText) findViewById(R.id.txtPrecioCostoTel);
         venta = (EditText) findViewById(R.id.txtPrecioVentaTel);
+        bodega = (EditText) findViewById(R.id.txtBodega);
         registrar = (Button) findViewById(R.id.btnRegistrarTelefono);
 
         registrar.setOnClickListener(new View.OnClickListener() {
@@ -51,9 +59,11 @@ public class RegistrarTelefonoActivity extends AppCompatActivity {
         NetworkInfo networkInfo = con.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             if (imei.getText().toString().isEmpty() || marca.getText().toString().isEmpty() || modelo.getText().toString().isEmpty()
-                    || costo.getText().toString().isEmpty() || modelo.getText().toString().isEmpty()) {
+                    || costo.getText().toString().isEmpty() || modelo.getText().toString().isEmpty() || bodega.getText().toString().isEmpty()) {
                 Toast.makeText(getApplicationContext(), "¡Complete los campos!", Toast.LENGTH_SHORT).show();
             } else {
+                final int  cos = Integer.parseInt(costo.getText().toString());
+                final int ven = Integer.parseInt(venta.getText().toString());
                 //agregas un mensaje en el ProgressDialog
                 progressDialog.setMessage("Cargando...");
                 //muestras el ProgressDialog
@@ -62,18 +72,15 @@ public class RegistrarTelefonoActivity extends AppCompatActivity {
                 Thread thread = new Thread() {
                     @Override
                     public void run() {
-                        final String resultado = registrarDatosGET(imei.toString(), marca.toString(), modelo.getText().toString(), Integer.parseInt(costo.toString()),
-                                Integer.parseInt(venta.toString()));
+                        final String resultado = registrarDatosGET(imei.getText().toString(), marca.getText().toString(), modelo.getText().toString(), cos, ven, bodega.getText().toString());
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                //cargarWebServices();
                                 int r = obtenerDatosJSON(resultado);
                                 //Condición para validar si los campos estan llenos
                                 if (r == 0) {
                                     progressDialog.hide();
                                     Toast.makeText(getApplicationContext(), "¡Algo malo ocurrio!", Toast.LENGTH_SHORT).show();
-                                    //Toast.makeText(getApplicationContext(), resultado, Toast.LENGTH_LONG).show();
                                 } else {
                                     progressDialog.dismiss();
                                     Toast.makeText(getApplicationContext(), "Se ha registrado el telefono exitosamente", Toast.LENGTH_SHORT).show();
@@ -83,6 +90,7 @@ public class RegistrarTelefonoActivity extends AppCompatActivity {
                                     modelo.setText("");
                                     costo.setText("");
                                     venta.setText("");
+                                    bodega.setText("");
                                 }
                                 progressDialog.hide();
                             }
@@ -97,19 +105,20 @@ public class RegistrarTelefonoActivity extends AppCompatActivity {
 
     //----INICIO CODIGO---->
     //METODO PARA OBTENER LOS DATOS DE LOS PRODUCTOS
-    public String registrarDatosGET(String imei, String marca, String modelo, int precioCosto, int precioVenta){
+    public String registrarDatosGET(String imei, String marca, String modelo, int precioCosto, int precioVenta, String bodega){
         URL url = null;
         String linea = "";
         int respuesta = 0;
         StringBuilder resul = null;
         String url_local = "http://192.168.1.23/ServiciosWeb/registrarProducto.php?";
-        String url_aws = "http://52.67.38.127/hitech/hitech/registrarTelefono.php?";
+        String url_aws = "http://52.67.38.127/hitech/registrarTelefono.php?";
         String mar = marca.replace(" ", "%20");
         String mod = modelo.replace(" ", "%20");
+        String bod = bodega.replace(" ", "%20");
 
         try{
             //LA IP SE CAMBIA CON RESPECTO O EN BASE A LA MAQUINA EN LA CUAL SE ESTA EJECUTANDO YA QUE NO TODAS LAS IP SON LAS MISMAS EN LOS EQUIPOS
-            url = new URL(url_aws + "imei=" + imei + "&marca="+ mar + "&modelo="+ mod + "&precioCosto=" + precioCosto + "&precioVenta=" + precioVenta);
+            url = new URL(url_aws + "imei=" + imei + "&marca="+ mar + "&modelo="+ mod + "&precioCosto=" + precioCosto + "&precioVenta=" + precioVenta + "&bodega=" + bod);
             HttpURLConnection conection = (HttpURLConnection) url.openConnection();
             respuesta = conection.getResponseCode();
             resul = new StringBuilder();

@@ -56,7 +56,11 @@ public class VentaTelefonoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_venta_telefono);
 
-        progressDialog = new ProgressDialog(getApplicationContext());
+        /**
+         * Se coloca el nombre de la clase si es una activity,
+         * en caso de que sea un fragment se coloca getAplicationContext();
+         **/
+        progressDialog = new ProgressDialog(VentaTelefonoActivity.this);
         cargarPreferencias();
 
         codigoqr = (ImageButton) findViewById(R.id.btnVenQRTel);
@@ -123,7 +127,7 @@ public class VentaTelefonoActivity extends AppCompatActivity {
         listarTel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listarVenta();
+                vistaVenderTelefono();
             }
         });
 
@@ -138,13 +142,6 @@ public class VentaTelefonoActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 registrarVenta();
-            }
-        });
-
-        venderTel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                vistaVenderTelefono();
             }
         });
     }
@@ -166,7 +163,6 @@ public class VentaTelefonoActivity extends AppCompatActivity {
             }
 
             final int precioTotal = Integer.parseInt(precioVentaTel.getText().toString());
-
             //agregas un mensaje en el ProgressDialog
             progressDialog.setMessage("Cargando...");
             //muestras el ProgressDialog
@@ -190,10 +186,8 @@ public class VentaTelefonoActivity extends AppCompatActivity {
                                     producto.setText("");
                                     precioVentaTel.setText("");
                                     Toast.makeText(getApplicationContext(), "Se ha registrado la venta del telefono.", Toast.LENGTH_SHORT).show();
-                                    Toast.makeText(getApplicationContext(), "->" + resultado, Toast.LENGTH_SHORT).show();
                                 } else {
                                     Toast.makeText(getApplicationContext(), "¡Error al registrar!", Toast.LENGTH_SHORT).show();
-                                    Toast.makeText(getApplicationContext(), "->" + resultado, Toast.LENGTH_SHORT).show();
                                     progressDialog.hide();
                                 }
                                 progressDialog.hide();
@@ -209,9 +203,9 @@ public class VentaTelefonoActivity extends AppCompatActivity {
         }
     }
 
-    /*
+    /**
      * METODO DE MOSTRAR LOS DATOS LEYENDO POR MEDIO DEL LECTOR DE CCOIGO QR
-     * */
+     **/
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         IntentResult intentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
@@ -258,11 +252,6 @@ public class VentaTelefonoActivity extends AppCompatActivity {
         }
     }
 
-    private void listarVenta(){
-        Intent intent = new Intent(this.getApplicationContext(), ListarVentaTelefonoActivity.class);
-        startActivity(intent);
-    }
-
     private void buscarProductoId(){
         //agregas un mensaje en el ProgressDialog
         progressDialog.setMessage("Cargando...");
@@ -295,13 +284,13 @@ public class VentaTelefonoActivity extends AppCompatActivity {
     }
 
     private void vistaVenderTelefono(){
-        Intent intent = new Intent(this.getApplicationContext(), VentaTelefonoActivity.class);
+        Intent intent = new Intent(this.getApplicationContext(), ListarVentaTelefonoActivity.class);
         startActivity(intent);
     }
 
-    /*
+    /**
      * METODO PARA OBTENER LOS DATOS DE LOS PRODUCTOS
-     * */
+     **/
     public String cargarDatosGET(){
         URL url = null;
         String linea = "";
@@ -342,7 +331,7 @@ public class VentaTelefonoActivity extends AppCompatActivity {
 
         try{
             //LA IP SE CAMBIA CON RESPECTO O EN BASE A LA MAQUINA EN LA CUAL SE ESTA EJECUTANDO YA QUE NO TODAS LAS IP SON LAS MISMAS EN LOS EQUIPOS
-            url = new URL(url_aws + "?producto=" + imei + "&precio=" + precio + "&empleado=" + cedula);
+            url = new URL(url_aws + "?imei=" + imei + "&precioVenta=" + precio + "&empleado=" + cedula);
             HttpURLConnection conection = (HttpURLConnection) url.openConnection();
             respuesta = conection.getResponseCode();
             resul = new StringBuilder();
