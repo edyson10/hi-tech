@@ -23,7 +23,8 @@
             android:text="Bienvenido a HI-TECH "
             android:textColor="@color/primaryTextColor"
             android:textSize="24dp"
-            android:textStyle="bold" />
+            android:textStyle="italic"
+            />
     </LinearLayout>
 
 </RelativeLayout>

@@ -83,7 +83,7 @@ public class LoginActivity extends Activity {
                                     }
                                 } else {
                                     Toast.makeText(getApplicationContext(), "Usuario y/o contraseña incorrectos", Toast.LENGTH_SHORT).show();
-                                    Toast.makeText(getApplicationContext(), resultado, Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(getApplicationContext(), resultado, Toast.LENGTH_SHORT).show();
                                     progressDialog.hide();
                                 }
                             }

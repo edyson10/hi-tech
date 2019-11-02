@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -12,99 +12,135 @@
     tools:context=".Fragments.VentaFragment">
 
     <TextView
+        android:id="@+id/tituloMayor"
         android:layout_gravity="center"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="VENTAS"
         android:textSize="20dp"
         android:layout_marginBottom="10dp"
-        android:textStyle="bold"/>
-
-    <Spinner
-        android:id="@+id/spEmpleadoVenQR"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-    </Spinner>
+        android:textStyle="bold"
+        android:gravity="center_horizontal"/>
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:id="@+id/layout_producto"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <EditText
-            android:id="@+id/txtBuscarProductoVenQR"
+        android:layout_below="@id/tituloMayor"
+        android:orientation="vertical">
+        <Spinner
+            android:id="@+id/spEmpleadoVenQR"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </Spinner>
+
+        <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0.3"
-            android:inputType="text"
-            android:hint="Digite el producto"
-            android:textSize="15dp" />
-        <ImageButton
-            android:id="@+id/btnBuscaProductoVenQR"
-            android:layout_width="fill_parent"
+            android:orientation="horizontal">
+            <EditText
+                android:id="@+id/txtBuscarProductoVenQR"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:inputType="text"
+                android:hint="Digite el producto"
+                android:textSize="15dp" />
+            <ImageButton
+                android:id="@+id/btnBuscaProductoVenQR"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_arrow_downward"/>
+            <ImageButton
+                android:id="@+id/btnVenQR"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_menu_camera"
+                android:screenOrientation="locked"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_precio"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@drawable/ic_arrow_downward"/>
-        <ImageButton
-            android:id="@+id/btnVenQR"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@drawable/ic_menu_camera"
-            android:screenOrientation="locked"/>
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/txtPrecioVenQR"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.1"
+                android:layout_gravity="center"
+                android:hint="Precio sugerido"
+                android:inputType="number"/>
+            <EditText
+                android:id="@+id/txtCantidadVenQR"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="0.1"
+                android:hint="Cantidad"
+                android:maxLength="2"
+                android:inputType="number"/>
+        </LinearLayout>
     </LinearLayout>
 
-    <android.support.design.widget.TextInputLayout
+    <ListView
+        android:id="@+id/listaProductosVentas"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <EditText
-            android:id="@+id/txtPrecioVenQR"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:hint="Precio sugerido de venta"
-            android:inputType="number"/>
-    </android.support.design.widget.TextInputLayout>
+        android:layout_height="match_parent"
+        android:layout_below="@id/layout_producto"
+        android:layout_above="@id/btnBuscarBodega">
+    </ListView>
 
-    <android.support.design.widget.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <EditText
-            android:id="@+id/txtCantidadVenQR"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:hint="Cantidad"
-            android:inputType="number"/>
-    </android.support.design.widget.TextInputLayout>
-
-    <LinearLayout
+    <Button
+        android:id="@+id/btnBuscarBodega"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:text="BUSCAR"
+        android:visibility="invisible"
+        android:layout_alignParentBottom="true" />
+
+    <LinearLayout
+        android:id="@+id/layout_ventas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/listaProductosVentas"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true">
         <Button
             android:id="@+id/btnVenderVenQR"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.1"
             android:text="VENDER"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center"
+            android:background="@drawable/button"
+            android:textColor="@color/white"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"/>
         <Button
             android:id="@+id/btnVenderTelefono"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.1"
-            android:text="VENDER TELEFONO"
-            android:layout_gravity="center"/>
+            android:text="TELEFONO"
+            android:layout_gravity="center"
+            android:background="@drawable/button"
+            android:textColor="@color/white"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"/>
         <Button
             android:id="@+id/btnListarBajas"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.1"
-            android:text="LISTAR VENTAS"/>
+            android:text="LISTAR"
+            android:background="@drawable/button"
+            android:textColor="@color/white"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"/>
     </LinearLayout>
-    <ListView
-        android:id="@+id/listaProductosVentas"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </ListView>
-</LinearLayout>
+</RelativeLayout>
