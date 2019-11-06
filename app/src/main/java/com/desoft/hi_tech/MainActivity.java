@@ -22,6 +22,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.desoft.hi_tech.Fragments.AcercaFragment;
@@ -45,6 +46,9 @@ public class MainActivity extends AppCompatActivity
     private ProgressDialog progressDialog;
     View view = null;
 
+    TextView usuario;
+    private String nombre;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,8 +56,9 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        progressDialog = new ProgressDialog(MainActivity.this);
         preferences = getSharedPreferences("Preferences", Context.MODE_PRIVATE);
-
+        cargarPreferencias();
         Fragment fragment = new VentaFragment();
         getSupportFragmentManager().beginTransaction().add(R.id.content_main, fragment).commit();
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -62,12 +67,15 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        progressDialog = new ProgressDialog(MainActivity.this);
         NavigationView navigationView = findViewById(R.id.nav_view);
+        View hView = navigationView.getHeaderView(0);
+        usuario = (TextView) hView.findViewById(R.id.idEmpleado);
         navigationView.setNavigationItemSelectedListener(this);
         LayoutInflater imagen_alert = LayoutInflater.from(MainActivity.this);
         // Se añade el logo de hitech para los alertidalog
         // view = imagen_alert.inflate(R.layout.imagen_alert, null);
+
+        usuario.setText(nombre);
     }
 
     @Override
@@ -149,7 +157,7 @@ public class MainActivity extends AppCompatActivity
 
     private void alertOneButton() {
         new AlertDialog.Builder(MainActivity.this)
-                //.setIcon(R.drawable.icono)
+                .setIcon(R.drawable.hitech)
                 .setTitle("Sesión")
                 .setMessage("¿Desea cerrar sesión?")
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -166,6 +174,11 @@ public class MainActivity extends AppCompatActivity
                         Toast.makeText(getApplicationContext(), "Se ha cerrado sesión", Toast.LENGTH_SHORT).show();
                     }
                 }).show();
+    }
+
+    private void cargarPreferencias(){
+        SharedPreferences preferences = getSharedPreferences("Preferences", Context.MODE_PRIVATE);
+        nombre = preferences.getString("nombre","");
     }
 
     private void removePreferences() {

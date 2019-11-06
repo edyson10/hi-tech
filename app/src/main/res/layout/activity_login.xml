@@ -15,6 +15,13 @@
         android:orientation="vertical"
         android:weightSum="1">
 
+        <ImageView
+            android:id="@+id/logoHitech"
+            android:layout_width="300dp"
+            android:layout_height="150dp"
+            android:src="@drawable/hitech"
+            android:layout_centerHorizontal="true"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

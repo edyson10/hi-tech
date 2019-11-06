@@ -22,16 +22,17 @@
         android:layout_marginTop="30dp"/>
 
     <ImageView
-        android:id="@+id/logoWifix"
+        android:id="@+id/logoHitech"
         android:layout_width="300dp"
         android:layout_height="150dp"
         android:layout_marginTop="70dp"
+        android:src="@drawable/hitech"
         android:layout_centerHorizontal="true"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/logoWifix"
+        android:layout_below="@id/logoHitech"
         android:orientation="vertical"
         android:layout_gravity="center"
         android:layout_marginTop="10dp">
@@ -53,7 +54,7 @@
 
     <LinearLayout
         android:id="@+id/lay_desarrollo"
-        android:layout_below="@id/logoWifix"
+        android:layout_below="@id/logoHitech"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"

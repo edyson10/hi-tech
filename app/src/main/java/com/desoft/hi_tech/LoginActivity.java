@@ -30,7 +30,7 @@ public class LoginActivity extends Activity {
     EditText usuario, contraseña;
     private ProgressDialog progressDialog;
     private SharedPreferences preferences;
-    private String tienda;
+    private String tienda, nombre;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +77,7 @@ public class LoginActivity extends Activity {
                                         Toast.makeText(getApplicationContext(), "Has iniciado sesión como Administrador", Toast.LENGTH_LONG).show();
                                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                         intent.putExtra("cedula", usuario.getText().toString());
-                                        savePreferences(usuario.getText().toString(),contraseña.getText().toString(), tienda);
+                                        savePreferences(usuario.getText().toString(),contraseña.getText().toString(), tienda, nombre);
                                         goToMain();
                                         startActivity(intent);
                                     }
@@ -153,6 +153,7 @@ public class LoginActivity extends Activity {
             for (int i = 0; i < jsonArray.length(); i++) {
                 tipo = Integer.parseInt(jsonArray.getJSONObject(i).getString("id_tipoempleado"));
                 tienda = jsonArray.getJSONObject(i).getString("tienda");
+                nombre = jsonArray.getJSONObject(i).getString("nombre");
             }
         } catch (Exception ex) {
             Toast.makeText(getApplicationContext(), "Error: " + ex, Toast.LENGTH_SHORT).show();
@@ -160,12 +161,13 @@ public class LoginActivity extends Activity {
         return tipo;
     }
 
-    private void savePreferences(String cedula, String pass, String tienda){
+    private void savePreferences(String cedula, String pass, String tienda, String nombre){
         SharedPreferences preferences = getSharedPreferences("Preferences", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("cedula", cedula);
         editor.putString("pass", pass);
         editor.putString("tienda", tienda);
+        editor.putString("nombre", nombre);
         editor.commit();
     }
 
