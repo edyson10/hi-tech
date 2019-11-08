@@ -30,13 +30,14 @@ public class LoginActivity extends Activity {
     EditText usuario, contraseña;
     private ProgressDialog progressDialog;
     private SharedPreferences preferences;
-    private String tienda, nombre;
+    private String tienda, nombre, tipo_empleado;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        cargarPreferencias();
         progressDialog = new ProgressDialog(LoginActivity.this);
         usuario = (EditText) findViewById(R.id.txtUser);
         contraseña = (EditText) findViewById(R.id.txtPass);
@@ -77,7 +78,14 @@ public class LoginActivity extends Activity {
                                         Toast.makeText(getApplicationContext(), "Has iniciado sesión como Administrador", Toast.LENGTH_LONG).show();
                                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                         intent.putExtra("cedula", usuario.getText().toString());
-                                        savePreferences(usuario.getText().toString(),contraseña.getText().toString(), tienda, nombre);
+                                        savePreferences(usuario.getText().toString(),contraseña.getText().toString(), tienda, nombre, tipo_empleado);
+                                        goToMain();
+                                        startActivity(intent);
+                                    } else if(tipo == 2){
+                                        Toast.makeText(getApplicationContext(), "Has iniciado sesión como empleado", Toast.LENGTH_LONG).show();
+                                        Intent intent = new Intent(getApplicationContext(), MainEmpleadoActivity.class);
+                                        intent.putExtra("cedula", usuario.getText().toString());
+                                        savePreferences(usuario.getText().toString(),contraseña.getText().toString(), tienda, nombre, tipo_empleado);
                                         goToMain();
                                         startActivity(intent);
                                     }
@@ -154,6 +162,7 @@ public class LoginActivity extends Activity {
                 tipo = Integer.parseInt(jsonArray.getJSONObject(i).getString("id_tipoempleado"));
                 tienda = jsonArray.getJSONObject(i).getString("tienda");
                 nombre = jsonArray.getJSONObject(i).getString("nombre");
+                tipo_empleado = jsonArray.getJSONObject(i).getString("id_tipoempleado");
             }
         } catch (Exception ex) {
             Toast.makeText(getApplicationContext(), "Error: " + ex, Toast.LENGTH_SHORT).show();
@@ -161,13 +170,14 @@ public class LoginActivity extends Activity {
         return tipo;
     }
 
-    private void savePreferences(String cedula, String pass, String tienda, String nombre){
+    private void savePreferences(String cedula, String pass, String tienda, String nombre, String tipo){
         SharedPreferences preferences = getSharedPreferences("Preferences", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("cedula", cedula);
         editor.putString("pass", pass);
         editor.putString("tienda", tienda);
         editor.putString("nombre", nombre);
+        editor.putString("rol", tipo);
         editor.commit();
     }
 
@@ -185,12 +195,11 @@ public class LoginActivity extends Activity {
         String user = preferences.getString("rol", "");
 
         if(user.equalsIgnoreCase("1")){
-            //Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            //Intent intent = new Intent(getApplicationContext(), MasterMainActivity.class);
-            //startActivity(intent);
-            //intent.putExtra("cedula", usuario.getText().toString());
-        } else if(user.equalsIgnoreCase("2")){
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            //Intent intent = new Intent(getApplicationContext(), MasterMainActivity.class);
+            startActivity(intent);
+        } else if(user.equalsIgnoreCase("2")){
+            Intent intent = new Intent(getApplicationContext(), MainEmpleadoActivity.class);
             startActivity(intent);
         }
     }
