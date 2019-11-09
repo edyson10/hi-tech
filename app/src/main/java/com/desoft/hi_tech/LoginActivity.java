@@ -15,6 +15,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.desoft.hi_tech.Clases.TareaAutomatica;
+
 import org.json.JSONArray;
 
 import java.io.BufferedInputStream;
@@ -23,6 +25,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Date;
 
 public class LoginActivity extends Activity {
 
@@ -32,12 +35,15 @@ public class LoginActivity extends Activity {
     private SharedPreferences preferences;
     private String tienda, nombre, tipo_empleado;
 
+    public static LoginActivity objeto;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
         cargarPreferencias();
+        objeto = LoginActivity.this;
         progressDialog = new ProgressDialog(LoginActivity.this);
         usuario = (EditText) findViewById(R.id.txtUser);
         contraseña = (EditText) findViewById(R.id.txtPass);
@@ -48,6 +54,23 @@ public class LoginActivity extends Activity {
                 iniciarSesion();
             }
         });
+
+        /*
+        final TareaAutomatica time = new TareaAutomatica();   // para las notificaciones
+        new Thread(time).start();
+        Thread thread = new Thread(){
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                       time.run();
+                    }
+                });
+            }
+        };
+        thread.start();
+         */
     }
 
     private void iniciarSesion(){
@@ -203,4 +226,8 @@ public class LoginActivity extends Activity {
             startActivity(intent);
         }
     }
+
+
+
+
 }
